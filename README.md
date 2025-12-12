@@ -7,5 +7,5 @@
 Тех. требования:
 1. Фреймворк (flask, django)
 2. База данных (SQlite memory, файл)
-3. Фротенд (html, bootstrap5)
+3. Фронтенд (html, bootstrap5)
 4. GitFlow
