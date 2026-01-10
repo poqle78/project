@@ -95,6 +95,6 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Login settings
-LOGIN_REDIRECT_URL = '/tasks/'
-LOGOUT_REDIRECT_URL = '/'
-LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/tasks/'  # После входа переходим к списку задач
+LOGOUT_REDIRECT_URL = '/'       # После выхода переходим на главную
+LOGIN_URL = '/login/'           # URL для входа
