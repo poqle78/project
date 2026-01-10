@@ -1,4 +1,1 @@
-INSTALLED_APPS = [
-    ...
-    'tasks',
-]
+
