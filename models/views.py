@@ -1,76 +1,109 @@
-from django.shortcuts import render, redirect, get_object_or_404 # Функции Django для работы с представлениями
-from django.contrib.auth.decorators import login_required # Декоратор ограничения доступа по авторизации
-from .task import Task # Модель Task из текущего приложения
-from .form import TaskForm # Форма TaskForm из текущего приложения
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.contrib import messages
+from .task import Task
+from .form import TaskForm, CustomUserRegistrationForm
 
+def home(request):
+    """Главная страница"""
+    if request.user.is_authenticated:
+        return redirect('task_list')
+    return render(request, 'tracker/home.html')
 
-@login_required # Декоратор требует авторизации пользователя для доступа к функции
+def register(request):
+    """Регистрация пользователя"""
+    if request.method == 'POST':
+        form = CustomUserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Регистрация прошла успешно!')
+            return redirect('task_list')
+    else:
+        form = CustomUserRegistrationForm()
+    return render(request, 'tracker/register.html', {'form': form})
+
+@login_required
 def task_list(request):
-    '''
-    Список задач пользователя
-    '''
-    
-    tasks = Task.objects.filter(user=request.user).order_by('-created_at') # Получаем все задачи текущего пользователя, отсортированные по дате создания (новые сверху)
-    return render(request, 'task_list.html', {'tasks': tasks}) # Рендерим шаблон task_list.html с передачей списка задач в контекст
+    """Список задач пользователя"""
+    tasks = Task.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'tracker/task_list.html', {'tasks': tasks})
 
 @login_required
 def task_create(request):
-    '''
-    Создание новой задачи
-    '''
-    if request.method == 'POST': # Если форма отправлена методом POST
-        form = TaskForm(request.POST) # Создаем экземпляр формы с данными из POST-запроса
-        if form.is_valid(): # Проверяем валидность данных формы
-            task = form.save(commit=False) # Сохраняем форму с commit=False, чтобы не сохранять в БД сразу
-            task.user = request.user # Привязываем задачу к текущему пользователю
-            task.save() # Теперь сохраняем задачу в БД
-            return redirect('task_list') # Перенаправляем пользователя на список задач
-    else: # Если запрос GET (первый вход на страницу)
-        form = TaskForm() # Создаем пустую форму
-    return render(request, 'task_form.html', {'form': form}) # Рендерим шаблон формы создания/редактирования задачи
+    """Создание новой задачи"""
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.user = request.user
+            task.save()
+            messages.success(request, 'Задача успешно создана!')
+            return redirect('task_list')
+    else:
+        form = TaskForm()
+    return render(request, 'tracker/task_form.html', {'form': form})
 
 @login_required
 def task_update(request, pk):
-    '''
-    Редактирование задачи
-    '''
-    task = get_object_or_404(Task, pk=pk, user=request.user) # Получаем задачу по ID с проверкой принадлежности текущему пользователю или возвращаем 404 ошибку
+    """Редактирование задачи"""
+    task = get_object_or_404(Task, pk=pk, user=request.user)
     
-    if request.method == 'POST': # Если форма отправлена
-        form = TaskForm(request.POST, instance=task) # Создаем форму с данными из POST-запроса и привязываем к существующей задаче
-        if form.is_valid(): # Проверяем валидность данных
-            form.save() # Сохраняем изменения в БД
-            return redirect('task_list') # Перенаправляем на список задач
-    else: # Если запрос GET (загрузка формы для редактирования)
-        form = TaskForm(instance=task) # Создаем форму с предзаполненными данными из существующей задачи
-    return render(request, 'task_form.html', {'form': form}) # Рендерим шаблон формы с переданной формой
+    if request.method == 'POST':
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Задача успешно обновлена!')
+            return redirect('task_list')
+    else:
+        form = TaskForm(instance=task)
+    return render(request, 'tracker/task_form.html', {'form': form})
 
 @login_required
 def task_delete(request, pk):
-    '''
-    Удаление задачи
-    '''
-    task = get_object_or_404(Task, pk=pk, user=request.user) # Получаем задачу по первичному ключу, проверяя принадлежность пользователю
+    """Удаление задачи"""
+    task = get_object_or_404(Task, pk=pk, user=request.user)
     
-    if request.method == 'POST': # Подтверждение удаления (POST-запрос)
-        task.delete() # Удаляем задачу из БД
-        return redirect('task_list') # Перенаправляем на список задач
-    return render(request, 'task_confirm_delete.html', {'task': task}) # Отображаем шаблон подтверждения удаления задачи с передачей объекта задачи в контекст
+    if request.method == 'POST':
+        task.delete()
+        messages.success(request, 'Задача успешно удалена!')
+        return redirect('task_list')
+    return render(request, 'tracker/task_confirm_delete.html', {'task': task})
 
 @login_required
 def task_detail(request, pk):
-    '''
-    Детали задачи
-    '''
-    task = get_object_or_404(Task, pk=pk, user=request.user) # Получаем задачу по первичному ключу, проверяя принадлежность пользователю
-    return render(request, 'task_detail.html', {'task': task}) # Рендерим шаблон с детальной информацией о задаче
+    """Детали задачи"""
+    task = get_object_or_404(Task, pk=pk, user=request.user)
+    return render(request, 'tracker/task_detail.html', {'task': task})
 
 @login_required
 def task_mark_done(request, pk):
-    '''
-    Отметка задачи как выполненной
-    '''
-    task = get_object_or_404(Task, pk=pk, user=request.user) # Получаем задачу по первичному ключу, проверяя принадлежность пользователю
-    task.status = 'closed' # Устанавливаем статус 'закрытая' (closed)
-    task.save() # Сохраняем изменения в БД
-    return redirect('task_list') # Перенаправляем на список задач
+    """Отметить задачу как выполненную"""
+    task = get_object_or_404(Task, pk=pk, user=request.user)
+    task.status = 'closed'
+    task.save()
+    messages.success(request, 'Задача отмечена как выполненная!')
+    return redirect('task_list')
+
+# Функция проверки, является ли пользователь суперпользователем
+def is_superuser(user):
+    return user.is_superuser
+
+@user_passes_test(is_superuser)
+def admin_user_list(request):
+    """Список пользователей для администратора"""
+    users = User.objects.all().exclude(id=request.user.id)
+    return render(request, 'tracker/admin_user_list.html', {'users': users})
+
+@user_passes_test(is_superuser)
+def admin_impersonate_user(request, user_id):
+    """Вход от имени другого пользователя (только для админа)"""
+    user = get_object_or_404(User, id=user_id)
+    tasks = Task.objects.filter(user=user).order_by('-created_at')
+    return render(request, 'tracker/task_list.html', {
+        'tasks': tasks,
+        'viewing_as_admin': True,
+        'target_user': user
+    })
