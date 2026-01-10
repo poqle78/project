@@ -8,7 +8,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('login')
+            return redirect('task_list')
     else:
         form = CustomUserRegistrationForm()
     return render(request, 'registration/register.html', {'form': form})
