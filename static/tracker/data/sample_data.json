@@ -1,0 +1,33 @@
+{
+  "description": "Демонстрационные данные для Task Tracker",
+  "tasks": [
+    {
+      "title": "Реализовать регистрацию пользователей",
+      "description": "Создать форму регистрации, валидацию и сохранение в БД",
+      "priority": "high",
+      "due_date": "2026-01-12",
+      "status": "closed"
+    },
+    {
+      "title": "Создать HTML-шаблоны",
+      "description": "Разработать base.html, task_list.html, login.html с использованием Bootstrap 5",
+      "priority": "high",
+      "due_date": "2026-01-11",
+      "status": "closed"
+    },
+    {
+      "title": "Настроить Git Flow",
+      "description": "Создать ветки feature, release, настроить pull requests",
+      "priority": "medium",
+      "due_date": "2026-01-13",
+      "status": "in_progress"
+    },
+    {
+      "title": "Добавить статические файлы",
+      "description": "Положить CSS и JSON в папку static",
+      "priority": "low",
+      "due_date": "2026-01-10",
+      "status": "open"
+    }
+  ]
+}

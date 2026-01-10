@@ -1,0 +1,30 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.task-card {
+    transition: all 0.25s ease;
+    border: 1px solid #e9ecef;
+}
+.task-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.priority-high { background-color: #f8d7da; color: #721c24; }
+.priority-medium { background-color: #fff3cd; color: #856404; }
+.priority-low { background-color: #d1ecf1; color: #0c5460; }
+
+.btn {
+    border-radius: 6px;
+}
+
+.footer {
+    margin-top: auto;
+    padding: 20px 0;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
