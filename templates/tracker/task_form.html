@@ -1,0 +1,41 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}
+    {% if form.instance.pk %}Редактировать задачу{% else %}Создать задачу{% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>{% if form.instance.pk %}Редактировать задачу{% else %}Новая задача{% endif %}</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.title.label_tag }}
+        {{ form.title }}
+        {% if form.title.errors %}
+            <div class="text-danger">{{ form.title.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="mb-3">
+        {{ form.description.label_tag }}
+        {{ form.description }}
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form.priority.label_tag }}
+            {{ form.priority }}
+        </div>
+        <div class="col-md-6 mb-3">
+            {{ form.due_date.label_tag }}
+            {{ form.due_date }}
+        </div>
+    </div>
+    <div class="mb-3">
+        {{ form.status.label_tag }}
+        {{ form.status }}
+    </div>
+    <button type="submit" class="btn btn-success">
+        {% if form.instance.pk %}Сохранить{% else %}Создать{% endif %}
+    </button>
+    <a href="{% url 'task_list' %}" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}
